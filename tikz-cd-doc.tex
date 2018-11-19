@@ -1,0 +1,1421 @@
+% Copyright 2011, 2012, 2014 by Florêncio Neves <florencioneves@gmail.com>
+%
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+%
+% ------------------------------------------------------------------------
+%
+% This document requires the file pgfmanual-en-macros.tex (distributed
+% with pgf) to compile.  To get cross-references to the pgf manual,
+% compile it and copy all resulting .aux files to the directory of
+% tikz-cd-doc.tex.
+
+\def\pgfautoxrefs{1}
+
+\documentclass[a4paper]{ltxdoc}
+
+\def\xcolorversion{2.00}
+
+\usepackage[version=latest]{pgf}
+
+\usepackage{xkeyval,calc,listings,tikz,fp}
+
+\usepackage{hyperref}
+\hypersetup{%
+	colorlinks=false,	% use true to enable colors below:
+	linkcolor=blue,%red,
+	filecolor=blue,%magenta,
+	pagecolor=blue,%red,
+	urlcolor=blue,%cyan,
+	citecolor=blue,
+	pdfborder=0 0 0,
+}
+
+% We need lots of libraries...
+\usetikzlibrary{
+  arrows,
+  arrows.meta,
+  calc,
+  fit,
+  patterns,
+  plotmarks,
+  shapes.geometric,
+  shapes.misc,
+  shapes.symbols,
+  shapes.arrows,
+  shapes.callouts,
+  shapes.multipart,
+  shapes.gates.logic.US,
+  shapes.gates.logic.IEC,
+  circuits.logic.US,
+  circuits.logic.IEC,
+  circuits.logic.CDH,
+  circuits.ee.IEC,
+  datavisualization,
+  datavisualization.formats.functions,
+  er,
+  automata,
+  backgrounds,
+  chains,
+  topaths,
+  trees,
+  petri,
+  mindmap,
+  matrix,
+  calendar,
+  folding,
+  fadings,
+  shadings,
+  spy,
+  through,
+  turtle,
+  positioning,
+  scopes,
+  decorations.fractals,
+  decorations.shapes,
+  decorations.text,
+  decorations.pathmorphing,
+  decorations.pathreplacing,
+  decorations.footprints,
+  decorations.markings,
+  shadows,
+  lindenmayersystems,
+  intersections,
+  fixedpointarithmetic,
+  fpu,
+  svg.path,
+  external,
+}
+
+\usepackage[a4paper,left=2.25cm,right=2.25cm,top=2.5cm,bottom=2.5cm,nohead]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{xxcolor}
+\usepackage{pifont}
+\usepackage{makeidx}
+\usepackage{tikz-cd,xr,multicol,microtype}
+
+
+\IfFileExists{pgfmanual-en-macros}
+  {\input{pgfmanual-en-macros}}
+  {\PackageError{tikz-cd-doc}{
+This document requires the file pgfmanual-en-macros.tex (distributed
+with pgf) to compile.  Please place a copy of that file in the current
+directory}{}}
+
+\IfFileExists{pgfmanual.aux}
+  {\externaldocument[pgfman-]{pgfmanual}}
+  {\PackageWarning{tikz-cd-doc}{
+Couldn't find pgfmanual.aux.  To get cross-references to the pgf
+manual, compile it and copy all resulting .aux files to the current
+directory}{}}
+
+\makeindex
+
+% Global styles:
+\tikzset{
+  every plot/.style={prefix=plots/pgf-},
+  shape example/.style={
+    color=black!30,
+    draw,
+    fill=yellow!30,
+    line width=.5cm,
+    inner xsep=2.5cm,
+    inner ysep=0.5cm}
+}
+
+\hypersetup{unicode,
+            pdftitle={tikzcd: Commutative diagrams with TikZ},
+            pdfkeywords={Commutative diagrams; TeX; LaTeX; ConTeXt; TikZ; pgf; tikz-cd; tikzcd},
+           }
+
+\pgfkeys{
+  /pdflinks/search key prefixes in=
+    {/tikz/commutative diagrams/},%,/tikz/,/pgf/}  % This really needs to be commented out!
+  /pdflinks/internal link prefix=tikzcd,
+	%
+  /pdflinks/warnings=false,
+	% for debugging:
+  /pdflinks/show labels=false,
+}
+
+\tikzset{/codeexample/every codeexample/.append style={/tikz/commutative diagrams/background color=graphicbackground}}
+
+\tikzset{gray x/.tip={Rays[color=gray]}}
+
+\newcommand{\displayarrow}[2][]{%
+  \index{#2@\protect\texttt{#2} arrow tip}%
+  \index{Arrow tips!#2@\protect\texttt{#2}}%
+  \texttt{#2} & yields \tikz[baseline=-axis_height] \draw[{#2}-{#2}, line width=rule_thickness, #1] (0,0) -- (1,0);}
+
+\newcommand{\displayarrowstyle}[1]{
+  \def\mykey{/tikz/commutative diagrams/#1}%
+  \def\mypath{}%
+  \def\myname{}%
+  \firsttimetrue%
+  %\pgfmanualdecomposecount=0\relax%
+  \decompose/tikz/commutative diagrams/#1/\nil%
+  \texttt{#1} & yields
+  \tikz[baseline=-axis_height, line width=rule_thickness] \draw[arrows=gray
+  x-gray x,commutative diagrams/.cd, #1] (0,0) -- (0.6,0);}
+
+\begin{document}
+\begin{center}
+\vspace*{1em}
+\tikz\node[scale=1.2]{%
+  \color{gray}\Huge\ttfamily \char`\{\textcolor{red!75!black}{tikzcd}\char`\}};
+
+\vspace{0.5em}
+{\Large\bfseries Commutative diagrams with \tikzname}
+
+\vspace{1em}
+{Version 0.9e \qquad October 30, 2014}
+\end{center}
+
+\vspace{1.5em}
+The general-purpose drawing package Ti\emph{k}Z can be used to typeset
+commutative diagrams and other kinds of mathematical pictures,
+generating high-quality results.  The present package facilitates the
+creation of such diagrams by providing a convenient set of macros and
+reasonable default settings.  Familiarity with Ti\emph{k}Z is helpful
+but not necessary, since the examples contained here cover the most
+common situations.
+
+This software is distributed under the terms of the GNU General Public
+License, version 3 or later.
+
+\tableofcontents
+
+\setcounter{section}{-1}
+\section{Disclaimer}
+\label{sec:disclaimer}
+
+Before version 1.0 of this package is released, minor modifications
+and bug fixes may be performed.  All documents making an orthodox use
+of this package will continue to compile and generate essentially the
+same output.  However, if you have strict stability requirements (for
+instance, if you want to assure no page break changes will happen in
+your documents), keep a copy of the current version of the file
+\texttt{tikzlibrarycd.code.tex} in your document's directory.
+
+\section{Getting started}
+\label{sec:basic-usage}
+
+To invoke this package in \LaTeX, type
+
+\begin{verse}
+    \index{tikz-cd@\protect\texttt{tikz-cd} package}%
+    \index{Packages and files!tikz-cd@\protect\texttt{tikz-cd}}%
+    |\usepackage{tikz-cd}|
+\end{verse}
+or load \tikzname{} and then type
+\begin{verse}%
+   \index{cd@\protect\texttt{cd} library}%
+   \index{Libraries!cd@\protect\texttt{cd}}%
+   |\usetikzlibrary{cd}|%
+\end{verse}
+
+\subsection{Creating a diagram}
+\label{sec:creating-diagrams}
+
+The basic tool to create a commutative diagram is the following
+environment.
+
+\begin{environment}{{tikzcd}\opt{\oarg{options}}}
+\end{environment}
+
+The environment contents should describe a matrix, as in \LaTeX's
+familiar |{tabular}| environment.  The optional argument
+\meta{options} may be used to modify the appearance of the diagram.
+Any of the customization keys described in this manual, as well as
+those originally provided by \tikzname{}, can be used here.  Arrows
+between matrix entries can be created with the |\arrow| command
+described below.
+
+Everything inside |{tikzcd}| is typeset in math mode, but you will
+probably want to use it inside an |{equation}| environment or
+|\[| \dots |\]|,
+so that the diagram is placed on a new line and centered.
+
+It is important to note that \textsc{dvi} viewers will not display
+diagrams correctly.  It is necessary to convert the \textsc{dvi} file
+to \textsc{pdf} or \textsc{ps} format---or, even better, use a tool
+that generates \textsc{pdf} files directly, such as \texttt{pdflatex}.
+
+\subsection{Inserting arrows}
+\label{sec:inserting-arrows}
+
+Inside the |{tikzcd}| environment, the following synonymous commands
+are provided to produce arrows.
+
+\begin{pgfmanualentry}
+  \extractcommand\arrow|[|\meta{options}|]|\@@
+  \extractcommand\ar|[|\meta{options}|]|\@@
+  \pgfmanualbody
+\end{pgfmanualentry}
+
+Here, \meta{options} is a comma-separated list of options which can be
+used to specify the arrow target, add labels, change arrow tips, and
+perform additional modifications.
+
+The arrow target can be specified by a direction parameter, which
+consists of a string of characters |r|, |l|, |d|, |u| (standing for
+right, left, down and up).  Labels can be placed on an arrow by means
+of the quotes syntax, described in detail in the \pgfname{} manual
+\cite[\S\ref*{pgfman-section-label-quotes}]{pgfman}.  Notice the use
+of |"\phi"| in the example below.
+
+\begin{codeexample}[]
+  \begin{tikzcd}
+    A \arrow[rd] \arrow[r, "\phi"] & B \\
+                                   & C
+  \end{tikzcd}
+\end{codeexample}
+
+To further modify the appearance of an arrow, note that \meta{options}
+may contain any key that can be passed to \tikzname's |\path| command.
+Similarly, a label can receive additional options via the syntax
+\begin{verse}
+  |"|\meta{label text}|"|\opt{\meta{label options}}.
+\end{verse}
+Both \meta{label text} and \meta{label options} need to be enclosed in
+curly braces if they contain commas.
+
+\begin{codeexample}[]
+\begin{tikzcd}
+  A \arrow[r, "\phi"] \arrow[d, red]
+    & B \arrow[d, "\psi" red] \\
+  C \arrow[r, red, "\eta" blue]
+    & D
+\end{tikzcd}
+\end{codeexample}
+
+Arrows can have an arbitrary number of labels, by repeated use of
+arguments in quotes.  The example below shows how to control the
+positioning of labels.  Notice in particular that an apostrophe as
+\meta{label option} causes the label to be placed on the opposite side
+of the arrow.
+
+\begin{codeexample}[]
+\begin{tikzcd}
+  A \arrow[r, "\phi" near start, "\psi"', "\eta" near end] & B    
+\end{tikzcd}
+\end{codeexample}
+
+We provide two real-life examples.
+
+\begin{codeexample}[]
+\begin{tikzcd}
+  T
+  \arrow[drr, bend left, "x"]
+  \arrow[ddr, bend right, "y"]
+  \arrow[dr, dotted, "{(x,y)}" description] & & \\
+    & X \times_Z Y \arrow[r, "p"] \arrow[d, "q"]
+      & X \arrow[d, "f"] \\
+    & Y \arrow[r, "g"]
+      & Z
+\end{tikzcd}
+\end{codeexample}
+
+\begin{codeexample}[]
+\begin{tikzcd}[column sep=tiny]
+    & \pi_1(U_1) \ar[dr] \ar[drr, "j_1", bend left=20]
+      &
+        &[1.5em] \\
+  \pi_1(U_1\cap U_2) \ar[ur, "i_1"] \ar[dr, "i_2"']
+    &
+      & \pi_1(U_1) \ast_{ \pi_1(U_1\cap U_2)} \pi_1(U_2) \ar[r, dashed, "\simeq"]
+        & \pi_1(X) \\
+    & \pi_1(U_2) \ar[ur]\ar[urr, "j_2"', bend right=20]
+      &
+        &
+\end{tikzcd}
+\end{codeexample}
+
+\subsection{Changing arrow tips}
+\label{sec:changing-arrow-tips}
+
+A set of |\arrow| options is provided to create different kinds of
+arrows.  Some of these options have a short descriptive name, such as
+|hook|, and others are named after \TeX{} arrow-producing commands
+(without a ``|\|''), like |dashrightarrow|.%|
+
+\begin{codeexample}[]
+  \begin{tikzcd}
+    X \arrow[r, hook] \arrow[dr, dashrightarrow]
+      & \bar{X} \arrow[d]\\
+      & Y
+  \end{tikzcd}
+\end{codeexample}
+
+The following list shows all available arrow types (each of them is a
+style key located in |/tikz/commutative diagrams|).
+
+\begin{multicols}{2}\raggedcolumns
+  \subsubsection*{Basic arrows}
+  \begin{tabular}{ll}
+    \displayarrowstyle{to head}\\
+    \displayarrowstyle{rightarrow}\\
+    \displayarrowstyle{leftarrow}\\
+    \displayarrowstyle{leftrightarrow}\\
+    \displayarrowstyle{Rightarrow}\\
+    \displayarrowstyle{Leftarrow}\\
+    \displayarrowstyle{Leftrightarrow}
+  \end{tabular}
+
+  \subsubsection*{Arrows from bar}
+  \begin{tabular}{ll}
+    \displayarrowstyle{maps to}\\
+    \displayarrowstyle{mapsto}\\
+    \displayarrowstyle{mapsfrom}\\
+    \displayarrowstyle{Mapsto}\\
+    \displayarrowstyle{Mapsfrom}\\
+  \end{tabular}
+
+  \subsubsection*{Arrows with hook}
+  \begin{tabular}{ll}
+    \displayarrowstyle{hook}\\
+    \displayarrowstyle{hook'}\\
+    \displayarrowstyle{hookrightarrow}\\
+    \displayarrowstyle{hookleftarrow}\\
+  \end{tabular}
+
+  \subsubsection*{Arrows with tail}
+  \begin{tabular}{ll}
+    \displayarrowstyle{tail}\\
+    \displayarrowstyle{rightarrowtail}\\
+    \displayarrowstyle{leftarrowtail}\\
+  \end{tabular}
+
+  \subsubsection*{Two-headed arrows}
+  \begin{tabular}{ll}
+    \displayarrowstyle{two heads}\\
+    \displayarrowstyle{twoheadrightarrow}\\
+    \displayarrowstyle{twoheadleftarrow}\\
+  \end{tabular}
+
+  \subsubsection*{Harpoons}
+  \begin{tabular}{ll}
+    \displayarrowstyle{harpoon}\\
+    \displayarrowstyle{harpoon'}\\
+    \displayarrowstyle{rightharpoonup}\\
+    \displayarrowstyle{rightharpoondown}\\
+    \displayarrowstyle{leftharpoonup}\\
+    \displayarrowstyle{leftharpoondown}\\
+  \end{tabular}
+
+  \subsubsection*{Dashed arrows}
+  \begin{tabular}{ll}
+    \displayarrowstyle{dashed}\\
+    \displayarrowstyle{dashrightarrow}\\
+    \displayarrowstyle{dashleftarrow}\\
+  \end{tabular}
+
+  \subsubsection*{Squiggly arrows}
+  \begin{tabular}{ll}
+    \displayarrowstyle{squiggly}\\
+    \displayarrowstyle{rightsquigarrow}\\
+    \displayarrowstyle{leftsquigarrow}\\
+    \displayarrowstyle{leftrightsquigarrow}
+  \end{tabular}
+
+  \subsubsection*{Non-arrows}
+  \begin{tabular}{ll}
+    \displayarrowstyle{no head}\\
+    \displayarrowstyle{no tail}\\
+    \displayarrowstyle{dash}\\
+    \displayarrowstyle{equal}\\
+  \end{tabular}
+\end{multicols}
+
+A gray cross (\tikz \path[/pgf/tips=true,gray x-] (0,0) -- (1mm,0);)
+in the samples above indicates that the corresponding tip is kept
+unchanged.  This allows several arrow styles to be superimposed.
+
+\begin{codeexample}[]
+\begin{tikzcd}
+  A \arrow[r, tail, two heads, dashed] & B
+\end{tikzcd}
+\end{codeexample}
+
+% It is also possible to select arrow tips using \tikzname{}'s |arrow|
+% option directly (e.g., by saying |right hook->|).  However, the method
+% described here above is more appropriate, as it abstracts the choice
+% of an actual arrow tip design (see also the |arrow style| key below),
+% and is arguably better from the mnemonic standpoint.
+
+
+\subsection{Alternative syntax for arrows}
+\label{sec:altern-synt-arrows}
+
+The following forms of the arrow command were used before the
+appearance of the quotes syntax for labels, and now may seem somewhat
+convoluted.  They are nonetheless still available for backwards
+compatibility.
+
+\begin{command}{\arrow\opt{\oarg{options}}\marg{direction}\meta{labels}}
+\end{command}
+
+Here, \meta{direction} is a string containing the characters |r|, |l|,
+|d|, |u| and is used to determine the arrow target.  Alternatively,
+you can specify an explicit matrix cell by replacing \meta{direction}
+with something of the form \meta{row number}\texttt{-}\meta{column
+  number}, or the name of a node.  The trailing \meta{labels} can be the
+empty string or of the form
+\begin{verse}
+  \opt{\oarg{label options}}\marg{label text}\meta{more labels}.
+\end{verse}
+The equivalent command |\ar| can also be used in this form.  Here is
+an example.
+
+\begin{codeexample}[]
+\begin{tikzcd}
+  A \arrow{d} \arrow{r}[near start]{\phi}[near end]{\psi}
+    & B \arrow[red]{d}{\xi} \\
+  C \arrow[red]{r}[blue]{\eta}
+    & D
+\end{tikzcd}
+\end{codeexample}
+
+There are further shortened forms:
+\begin{pgfmanualentry}
+  \extractcommand\rar\opt{\oarg{options}}\meta{labels}\@@
+  \extractcommand\lar\opt{\oarg{options}}\meta{labels}\@@
+  \extractcommand\dar\opt{\oarg{options}}\meta{labels}\@@
+  \extractcommand\uar\opt{\oarg{options}}\meta{labels}\@@
+  \extractcommand\drar\opt{\oarg{options}}\meta{labels}\@@
+  \extractcommand\urar\opt{\oarg{options}}\meta{labels}\@@
+  \extractcommand\dlar\opt{\oarg{options}}\meta{labels}\@@
+  \extractcommand\ular\opt{\oarg{options}}\meta{labels}\@@
+  \pgfmanualbody
+\end{pgfmanualentry}
+The first one is equivalent to
+\begin{verse}
+  |\arrow|{\oarg{options}}|{r}|\meta{labels}
+\end{verse}
+and the other ones work analogously.
+
+\subsection{Usage in plain \TeX{}}
+\label{sec:usage-plain-tex}
+
+To use this software in plain \TeX{}, load \tikzname{} and the
+\texttt{cd} library by saying
+\begin{verse}
+  |\input tikz.tex|\\
+  \index{cd@\protect\texttt{cd} library}%
+  \index{Libraries!cd@\protect\texttt{cd}}%
+  |\usetikzlibrary{cd}|
+\end{verse}
+The |{tikzcd}| environment should then be replaced by the following:
+\begin{plainenvironment}{{tikzcd}\opt{\oarg{options}}}
+\end{plainenvironment}
+All other functions of this library work as described in this manual
+without change.
+
+\subsection{Usage in Con\TeX t}
+\label{sec:usage-plain-context}
+
+To use this software in Con\TeX t, load \tikzname{} and then the
+\texttt{cd} library by saying
+\begin{verse}
+  |\usemodule[tikz]|\\
+  \index{cd@\protect\texttt{cd} library}%
+  \index{Libraries!cd@\protect\texttt{cd}}%
+  |\usetikzlibrary[cd]|
+\end{verse}
+The |{tikzcd}| environment should then be replaced by the following:
+\begin{contextenvironment}{{tikzcd}\opt{\oarg{options}}}
+\end{contextenvironment}
+Moreover, you may replace the column and row separators |&|, |\\| by
+their Con\TeX t analogues |\NC|, |\NR|.  However, you should use |\NC|
+only \emph{between} cells, and not before the first column or after
+the last column, as in usual Con\TeX t tables.  Similarly, |\NR|
+should be used only between rows.
+
+All other functions of this library work as described in this manual
+without change.
+
+\section{Controlling the appearance of diagrams}
+\label{sec:chang-appe-diagr}
+
+This section describes a number of customization keys defined by this
+package.  All keys are located in the path |/tikz/commutative diagrams|.
+Options passed to |{tikzcd}| or |\arrow| are searched for
+in that path, and, if not found there, in |/tikz|.  To set options
+globally, it is convenient to use the following command.
+
+\begin{command}{\tikzcdset\marg{options}}
+  Executes \meta{options} in the path |/tikz/commutative diagrams|.
+\end{command}
+
+Besides the keys described in this manual, numerous \tikzname\
+parameters can affect the appearance of a diagram.  However, only a
+few of them (namely those appearing in |every diagram|, |every cell|,
+|every arrow|, and |every label| below) are reinitialized when
+|{tikzcd}| is called.  This means that modifying a certain \tikzname\
+parameter globally may or may not affect the output of |{tikzcd}|.
+
+We also point out that besides the options and styles provided by this
+package, several keys defined by \tikzname{} are useful for arrows.
+Some examples are \texttt{dashed}, |dotted|, and its relatives,
+|line width=|\meta{dimension}, |color=|\meta{color}, |bend right|, |bend left|,
+|in=|\meta{angle}, |out=|\meta{angle}, |loop|, etc.  See the
+\pgfname{} manual~\cite[\S\ref*{pgfman-section-cap-joins} and
+\S\ref*{pgfman-library-to-paths}]{pgfman}.  Likewise, \tikzname{}
+provides several keys that are useful for labels, such as |above|,
+|below|, |left|, |right|, |swap| (which makes the label be placed on
+the right side of the arrow, relative to its direction), |sloped|,
+|pos=|\meta{fraction}, |near start|, |near end|, |inner sep=|\meta{dimension},
+|font=|\meta{font command}, |text width=|\meta{dimension}, etc.  See the \pgfname{}
+manual~\cite[\S\ref*{pgfman-section-nodes}, esp.\
+\S\ref*{pgfman-section-pos-option}]{pgfman}.
+
+\subsection{General options}
+\label{sec:general-options}
+
+\begin{stylekey}{/tikz/commutative diagrams/every diagram}
+  This style is applied to every |{tikzcd}| environment.  Initially, it
+  contains the following:
+\begin{verse}
+|row sep=normal||,|\\
+|column sep=normal||,|\\
+|/tikz/baseline=0pt|
+\end{verse}
+\end{stylekey}
+
+The |baseline=0pt| setting is used to make equation numbers be placed
+correctly (as an exception, one-row diagrams are anchored at their
+matrix base, which is exactly what you want).
+
+\begin{key}{/tikz/commutative diagrams/diagrams=\meta{options}}
+  This key appends \meta{options} to the style |every diagram|.
+\end{key}
+
+\begin{stylekey}{/tikz/commutative diagrams/every matrix}
+  This style is applied to the \tikzname{} matrix created internally
+  by |{tikzcd}|.  Initially, it contains the following:
+\begin{verse}
+|/tikz/inner sep=0pt|
+\end{verse}
+\end{stylekey}
+
+\begin{stylekey}{/tikz/commutative diagrams/every cell}
+  This style is applied to every \tikzname{} matrix cell created by
+  |{tikzcd}|.  Initially, it contains the following:
+\begin{verse}
+|/tikz/shape=asymmetrical rectangle||,|\\
+|/tikz/inner xsep=1ex||,|\\
+|/tikz/inner ysep=0.85ex|
+\end{verse}
+\end{stylekey}
+
+The |asymmetrical rectangle| shape is described in
+\S\ref{sec:asymm-rect-shape}.  The |inner xsep|, |inner ysep| options
+determine the spacing between a diagram entry and any arrows reaching
+it.
+
+\begin{key}{/tikz/commutative diagrams/cells=\meta{options}}
+  This key appends \meta{options} to the style |every cell|.
+\end{key}
+
+\def\printsepaux+#1em{#1\,em}
+\def\printsep#1#2{\edef\temp{\pgfkeysvalueof{/tikz/commutative diagrams/#1 sep/#2}}\expandafter\printsepaux\temp}
+
+\begin{key}{/tikz/commutative diagrams/row sep=\meta{size}}
+  This key acts as a ``frontend'' to \tikzname's |/tikz/row sep| key.  If
+  the key
+  \begin{verse}
+    |/tikz/commutative diagrams/row sep/|\meta{size}
+  \end{verse}
+stores a
+  \meta{value}, then it is read and |/tikz/row sep|=\meta{value} is
+  set.  If the key above is not initialized, then \meta{size} is
+  presumably a dimension, and |/tikz/row sep|=\meta{size} is set.
+
+  The initially available sizes, and their values, are
+  the following:
+  \begin{center}
+    \begin{tabular}{cccccc}
+      |tiny| & |small| & |scriptsize| & |normal| & |large| & |huge| \\
+      \printsep{row}{tiny} & \printsep{row}{small} & \printsep{row}{scriptsize} & \printsep{row}{normal} & \printsep{row}{large} & \printsep{row}{huge}
+    \end{tabular}
+  \end{center}
+\end{key}
+
+Notice that setting, say, |row sep=1cm| globally with |\tikzcdset| will
+have no effect, since the |row sep| option is re-set at the beginning
+of each diagram.  To make all diagrams have |row sep| equal to 1\,cm,
+you can modify the meaning of |normal| by saying
+\begin{verse}
+|\tikzcdset{row sep/normal=1cm}|.
+\end{verse}
+You can also create new sizes, but note that \pgfname\ requires new keys to be
+initialized explicitly.  For example, to create a size |my size|,
+meaning 1\,ex, you should use
+\begin{verse}
+|\tikzcdset{row sep/my size/.initial=1ex}|.
+\end{verse}
+
+\begin{key}{/tikz/commutative diagrams/column sep=\meta{size}}
+  This works analogously to the |row sep| key above.  The sizes available
+  initially are the following:
+  \begin{center}
+    \begin{tabular}{cccccc}
+      |tiny| & |small| & |scriptsize| & |normal| & |large| & |huge| \\
+      \printsep{column}{tiny} & \printsep{column}{small} & \printsep{column}{scriptsize} & \printsep{column}{normal} & \printsep{column}{large} & \printsep{column}{huge}
+    \end{tabular}
+  \end{center}
+\end{key}
+
+\begin{key}{/tikz/commutative diagrams/sep=\meta{size}}
+  This key sets |row sep=|\meta{size}, |column sep=|\meta{size}.
+\end{key}
+
+In the examples below, the triangular diagrams would look too wide or
+too tall if the column or row separation were not set appropriately.
+
+\begin{codeexample}[]
+\begin{tikzcd}[column sep=small]
+               & A \arrow[dl] \arrow[dr] & \\
+  B \arrow{rr} &                         & C 
+\end{tikzcd}
+\end{codeexample}
+
+\begin{codeexample}[]
+\begin{tikzcd}[row sep=tiny]
+                          & B \arrow[dd] \\
+  A \arrow[ur] \arrow[dr] &              \\
+                          & C
+\end{tikzcd}
+\end{codeexample}
+
+Section \ref*{pgfman-section-matrices}.3.2 of the \pgfname{} manual
+\cite{pgfman} contains further details on the spacing of matrix cells.
+
+\begin{stylekey}{/tikz/commutative diagrams/cramped}
+  By default, a generous amount of white space is added around diagram
+  cells, which is appropriate for large, displayed diagrams.  The
+  present style removes some of this extra white space, and is
+  intended for smaller diagrams that should blend with the surrounding
+  text, or very wide material that wouldn't fit on the page otherwise.
+\end{stylekey}
+
+Keep in mind that while there are some legitimate uses for |{tikzcd}|
+diagrams on inline formulas, standard \LaTeX\ constructs such as
+|\overset| and |\xrigthtarrow| are often sufficient and should be
+preferred.  The picture below shows the (somewhat subtle) difference
+between the cramped and the non-cramped styles.
+
+\begin{codeexample}[pre=\minipage{6cm},post=\endminipage]
+This \begin{tikzcd} A \arrow[r] & B \end{tikzcd} is a regular diagram.\\
+This \begin{tikzcd}[cramped, sep=small] A \arrow[r] & B \end{tikzcd} is a cramped diagram.\\
+This $A \to B$ is just a formula.
+\end{codeexample}
+
+\begin{key}{/tikz/commutative diagrams/math mode=\meta{boolean}
+     (default true)}
+   This key determines whether or not the contents of a diagram are
+   typeset in math mode.  If set globally or diagram-wise, it affects
+   both the diagram entries and arrow labels.  If used with |\arrow|,
+   it affects only its labels.
+\end{key}
+
+\begin{key}{/tikz/commutative diagrams/background color=\meta{color} (initially white)}
+  This key stores the name of a color, and is read by 
+  styles that fill the background, such as |description| and |crossing over|.
+  It does not cause the background of diagrams to be filled.
+\end{key}
+
+\subsection{Global options for arrows}
+\label{sec:options-arrows}
+
+\begin{stylekey}{/tikz/commutative diagrams/every arrow}
+  This style is applied to every |\arrow|.  Initially, it contains the
+  following:
+\begin{verse}
+|/tikz/draw,|\\
+|/tikz/line width=rule_thickness||,|\\
+|rightarrow|
+\end{verse}
+\end{stylekey}
+
+\begin{key}{/tikz/commutative diagrams/arrows=\meta{options}}
+  This key appends \meta{options} to the style |every arrow|.
+\end{key}
+
+\begin{key}{/tikz/commutative diagrams/arrow style=\meta{style}}
+  This key determines which collection of arrow tips is used by the
+  arrow tip selection styles listed in
+  \S\ref{sec:changing-arrow-tips}.  The initial setting is suitable
+  for documents using the Computer Modern font at any size.  The
+  available choices for \meta{style} are:
+  \begin{description}
+  \item[\texttt{Latin Modern}] A small variant of the initial
+    settings, intended for documents using the Latin Modern font at
+    any size.
+  \item[\texttt{math font}] This setting uses the |Glyph| meta arrow
+    tip described in \S\ref{sec:font-arrow-tips}.
+  \item[\texttt{tikz}] This setting uses the arrow tips defined in
+    \tikzname's |arrows.meta| library.  It honors the option
+    |/tikz/>|.
+  \end{description}
+
+  This key is usually invoked in the document preamble, and should be
+  set only once.
+\end{key}
+
+If you are using a font different from Computer Modern or Latin
+Modern, you may find the best results by selecting the |math font|
+style.  As detailed in \S\ref{sec:font-arrow-tips}, this is not
+guaranteed to work perfectly with all fonts, but gives good results in
+many cases.  If the \texttt{math font} style gives unsatisfactory
+results, you can try selecting the \texttt{tikz} style, and setting
+|/tikz/>| to the value that best matches your font (among those shown
+in \cite[\S\ref*{pgfman-section-arrows-meta}]{pgfman}).
+
+\begin{codeexample}[]
+% in preamble
+\tikzcdset{
+  arrow style=tikz,
+  diagrams={>={Straight Barb[scale=0.8]}}
+}
+
+% in document body
+\begin{tikzcd}
+  A \arrow[r, tail] \arrow[rd] & B \arrow[d, two heads]\\
+                               & D
+\end{tikzcd}
+\end{codeexample}
+
+\subsection{Absolute placement of arrows}
+\label{sec:absol-positioning}
+
+The usual behavior of |\arrow| is to produce an arrow starting at the
+diagram entry where the command appears, and ending at an entry whose
+location is specified relative to that.  The following keys override
+this behavior, allowing source and target to be selected explicitly.
+
+\begin{key}{/tikz/commutative diagrams/from=\meta{argument}}
+  If \meta{argument} is of the form \meta{row
+    number}\texttt{-}\meta{column number}, or if it is a string of
+  characters |r|, |l|, |d|, |u|, this key sets the arrow source to be
+  the corresponding cell in the diagram matrix.  Otherwise, it assumes
+  the argument is the name of a node and sets the arrow source to
+  \meta{argument}.
+\end{key}
+
+\begin{key}{/tikz/commutative diagrams/to=\meta{argument}}
+  Similar to |from|, but refers to the arrow target.
+\end{key}
+
+Recall that it is possible to give a specific entry of a \tikzname{}
+matrix a name by using the \verb!|[!\meta{options}\verb!]|! syntax, as
+done for entry $C$ in the example below.  You must be careful not to
+create nodes whose name contains only the characters |l|, |r|, |u|,
+|d| if you want to refer to them using |from| or |to|.
+
+{\catcode`\|=12
+\begin{codeexample}[]
+\begin{tikzcd}
+  A \arrow[to=Z, red] \arrow[to=2-2, blue]
+    & B \\
+  |[alias=Z]| C
+    & D
+  \arrow[from=ul, to=1-2, purple]
+\end{tikzcd}
+\end{codeexample}
+}
+
+In the next examples, empty labels are used to create nodes for later
+reference.  The |draw=red| option is used to show where these empty
+nodes are located, but of course you want to remove that when using
+this technique.
+
+\begin{codeexample}[]
+\begin{tikzcd}[column sep=scriptsize]
+  A \arrow[dr] \arrow[rr, ""{name=U, below, draw=red}]{}
+    & & B \arrow[dl] \\
+    & C \arrow[Rightarrow, from=U, "\psi"]
+\end{tikzcd}
+\end{codeexample}
+
+\begin{codeexample}[]
+\begin{tikzcd}
+  A \arrow[r, bend left=50, ""{name=U, below, draw=red}]
+    \arrow[r, bend right=50, ""{name=D, draw=red}]
+    & B
+  \arrow[Rightarrow, from=U, to=D]
+\end{tikzcd}
+\end{codeexample}
+
+\subsection{Phantom arrows}
+\label{sec:phantom-arrows}
+
+Sometimes it is necessary to insert a symbol outside the grid
+subjacent to the diagram.  The easiest way to achieve this is as a
+label to an invisible arrow.
+
+\begin{stylekey}{/tikz/commutative diagrams/phantom}
+  Creates an invisible arrow.  Labels to this arrow are not invisible.
+  They will be anchored at their center and typeset in full size
+  (i.e., with |\textstyle|).  To get smaller labels, as in ordinary
+  arrows, use the |\scriptstyle| command.
+\end{stylekey}
+
+In the picture below, the arrow containing the |phantom| option goes from
+$A$ to $D$, and the |\ulcorner| symbol ($\ulcorner$) is inserted
+closer to the starting point $A$.
+\begin{codeexample}[]
+\begin{tikzcd}
+  A \arrow[r] \arrow[d] \arrow[dr, phantom, "\ulcorner", very near start]
+    & B \arrow[d] \\
+  C \arrow[r]
+    & D
+\end{tikzcd}
+\end{codeexample}
+
+\subsection{Fine-tuning the placement of arrows}
+\label{sec:fine-tuning-arrows}
+
+\begin{key}{/tikz/commutative diagrams/shift left=\meta{dimension}
+    (default 0.56ex)}
+  Shifts arrows by \meta{dimension} to the left, relative to the arrow
+  direction.  A dimensionless argument causes that multiple of the
+  default value to be used.
+\end{key}
+
+\begin{key}{/tikz/commutative diagrams/shift right=\meta{dimension}
+    (default 1)}
+  A shortcut to |shift left=-|\meta{dimension}.
+\end{key}
+
+\begin{codeexample}[]
+\begin{tikzcd}
+  A \arrow[r, red, shift left=1.5ex] \arrow[r]
+    \arrow[dr, blue, shift right=1.5ex] \arrow[dr]
+    & B \arrow[d, purple, shift left=1.5ex] \arrow[d]\\
+    & C
+\end{tikzcd}
+\end{codeexample}
+
+The default values of |shift left| and |shift right| are appropriate
+for a pair of parallel arrows, and dimensionless arguments are useful
+to create sets of multiple parallel arrows.
+\begin{codeexample}[]
+\begin{tikzcd}
+  A \arrow[r]
+    & B \arrow[r, shift left]
+        \arrow[r, shift right]
+      & C \arrow[r]
+          \arrow[r, shift left=2]
+          \arrow[r, shift right=2]
+        & \cdots
+\end{tikzcd}
+\end{codeexample}
+
+\begin{key}{/tikz/commutative diagrams/shift=\marg{coordinate}}
+  Shifts arrows by \meta{coordinate}.
+\end{key}
+
+\begin{key}{/tikz/commutative diagrams/xshift=\meta{dimension}}
+  Shifts arrows right by \meta{dimension}.
+\end{key}
+
+\begin{key}{/tikz/commutative diagrams/yshift=\meta{dimension}}
+  Shifts arrows up by \meta{dimension}.
+\end{key}
+
+\begin{codeexample}[]
+\begin{tikzcd}
+  A \arrow[r, yshift=0.7ex] \arrow[r, yshift=-0.7ex]
+    & B \arrow[d, xshift=0.7ex] \arrow[d, xshift=-0.7ex] \\
+    & C
+\end{tikzcd}
+\end{codeexample}
+
+\begin{key}{/tikz/commutative diagrams/start anchor=\opt{{\ttfamily\char`\{}\ooarg{coordinate transformations}}\meta{anchor}\opt{\ttfamily\char`\}}}
+  This key specifies at which anchor of the source node the arrow
+  should start.  Optionally, additional coordinate transformations can
+  be supplied.  An empty \meta{anchor} argument causes no anchor to be
+  specified, which is the usual behavior.
+\end{key}
+
+\begin{key}{/tikz/commutative diagrams/end anchor=\opt{{\ttfamily\char`\{}\ooarg{coordinate transformations}}\meta{anchor}\opt{\ttfamily\char`\}}}
+  This key works analogously, but refers to the target node of the arrow.
+\end{key}
+
+See the picture on \S\ref{sec:asymm-rect-shape} for some of the
+possible values for \meta{anchor}.
+\begin{codeexample}[]
+\begin{tikzcd}[cells={nodes={draw=gray}}]
+  A \arrow[r, black]
+    \arrow[r, blue, end anchor=north east]
+    \arrow[r,
+           red,
+           start anchor={[xshift=-1ex]},
+           end anchor={[yshift=2ex]north east}]
+    & B
+\end{tikzcd}
+\end{codeexample}
+
+\subsection{Three-dimensional diagrams}
+\label{sec:crossing-over}
+
+\begin{stylekey}{/tikz/commutative diagrams/crossing over}
+  This style makes a thicker line, with color |background color|, to
+  be drawn under the current arrow, simulating the effect of its
+  passing over other arrows.
+
+\begin{codeexample}[]
+\begin{tikzcd}
+  A \arrow[dr] & B \arrow[dl, crossing over] \\
+  C            & D
+\end{tikzcd}
+\end{codeexample}
+\end{stylekey}
+
+Note that, since arrows are drawn in the order they are read, it may
+be necessary to defer the drawing of certain arrows to achieve the
+desired result.  This can be done using the |from| key, as shown in the
+following picture.
+
+\begin{codeexample}[]
+\begin{tikzcd}[row sep=scriptsize, column sep=scriptsize]
+  & f^* E_V \arrow[dl] \arrow[rr] \arrow[dd] & & E_V \arrow[dl] \arrow[dd] \\
+  f^* E \arrow[rr, crossing over] \arrow[dd] & & E \\
+  & U \arrow[dl] \arrow[rr] &  & V \arrow[dl] \\
+  M \arrow[rr] & & N \arrow[from=uu, crossing over]\\
+\end{tikzcd}
+\end{codeexample}
+  
+\begin{key}{/tikz/commutative diagrams/crossing over clearance=\meta{dimension}
+    (initially 1.5ex)}
+  This key specifies the width of the background-colored line drawn
+  under a |crossing over| arrow.
+\end{key}
+
+\subsection{Options for labels}
+\label{sec:options-labels}
+
+\begin{stylekey}{/tikz/commutative diagrams/every label}
+  This style is applied to every label produced with |\arrow|.  It is initially set
+  to
+
+\begin{verse}
+|/tikz/auto,|\\
+|/tikz/font=|\meta{something}|,|\\
+|/tikz/inner sep=0.5ex|
+\end{verse}
+where \meta{something} is something that makes |\scriptstyle| be
+applied to labels in math mode.
+\end{stylekey}
+
+The key |/tikz/auto| makes the label be placed on the left side of the
+arrow, relative to its direction.  The key |/tikz/inner sep| controls
+the distance between a label and the corresponding arrow.
+
+\begin{key}{/tikz/commutative diagrams/labels=\meta{options}}
+  This key appends \meta{options} to |every label|.
+\end{key}
+
+\begin{stylekey}{/tikz/commutative diagrams/description}
+  This style causes the label to be placed over the arrow, with the
+  background filled.  The clearance around the label is determined by
+  \texttt{/tikz/inner sep}.
+
+\begin{codeexample}[]
+\begin{tikzcd}
+  A \arrow[r, "\phi" description] & B
+\end{tikzcd}
+\end{codeexample}
+\end{stylekey}
+
+\section{Advanced usage}
+\label{sec:advanced-usage}
+
+This section provides further details on the functioning of this
+package, with the aim of allowing the advanced user to make a more or
+less arbitrary use of other \tikzname{} features within |{tikzcd}|.
+
+\subsection{Internals of \texttt{tikzcd} and the arrow commands}
+\label{sec:intern-arrow-comm}
+
+The |{tikzcd}| environment works by substituting code of the form
+\begin{verse}
+  |\begin{tikzcd}[|\meta{options}|]|\\
+  \hspace*{1.5ex}  \meta{contents}\\
+  |\end{tikzcd}|
+\end{verse}
+with roughly the following:
+\begin{verse}
+  |\begin{tikzpicture}[|\meta{options}|]|\\
+  \hspace*{1.5ex}|  \matrix[matrix of nodes] {|\\
+  \hspace*{3ex}|    |\meta{contents} |\\|\\
+  \hspace*{1.5ex}|  };|\\
+  \hspace*{1.5ex}|  |\meta{paths}\\
+  |\end{tikzpicture}|
+\end{verse}
+
+Not shown above are a number of initialization procedures, such as
+defining |\arrow| and its relatives, as well as applying the default
+settings specified by |every diagram| and its relatives.  Note that
+the next-row command |\\| for the last row is inserted by |{tikzcd}|,
+and therefore should not be present in \meta{contents}.  Notice also
+that you can use the key |execute at end picuture| in \meta{options}
+to have arbitrary \tikzname{} code executed after a diagram is drawn.
+
+Initially, \meta{paths} is the empty string.  A command
+|\arrow[|\meta{options}|]| does nothing at the point it is inserted,
+and causes the following code to be appended to \meta{paths}:
+\begin{verse}
+  |\path[|\meta{options}|] (|\meta{source~node}|) to (|\meta{target~node}|);|
+\end{verse}
+By default, \meta{source node} and \meta{target node} refer to the
+node corresponding to the matrix cell where the command |\arrow| is
+present.  This can be changed using the |from| and |to| keys, or a
+direction argument (a string consisting of characters |r|, |l|, |d|,
+|u|).
+
+\subsection{Tweaking \texttt{to} paths}
+\label{sec:tweaking-to-paths}
+
+Recall that the \texttt{to} path operation used in the paths created by
+|\arrow| can take a number of options, as described in 
+\S\ref*{pgfman-library-to-paths} of the \pgfname{} manual~\cite{pgfman}.  In particular, the
+key |/tikz/to path| determines the path that is actually drawn, and
+can be used to do all sorts of fiddling.
+
+\begin{codeexample}[]
+\begin{tikzcd}
+  A \arrow[dr, controls={+(1.5,0.5) and +(-1,0.8)}]
+    \arrow[dr, dashed, to path=|- (\tikztotarget)]
+    & \\
+    & B \arrow[loop right]
+\end{tikzcd}
+\end{codeexample}%|
+
+The following example shows how to produce a ``snake'' map.  The arrow
+with the |phantom| option (going from $B$ to $E$) has the sole purpose
+of creating a coordinate, named |Z|, lying halfway between these two
+cells.  The arrow starting at $C$ has target $D$, so the macros
+|\tikztostart| and |\tikztotarget| will expand to the nodes
+corresponding to these two cells in the argument of |to path|.  Notice
+also the use of |\tikztonodes| at the point where we want the label to
+be inserted.
+\begin{codeexample}[]
+\begin{tikzcd}
+  A \arrow[r]
+    & B \arrow[r]
+        \arrow[d, phantom, ""{coordinate, name=Z}]
+      & C \arrow[dll,
+                 "\delta",
+                 rounded corners,
+                 to path={ -- ([xshift=2ex]\tikztostart.east)
+                           |- (Z) [near end]\tikztonodes
+                           -| ([xshift=-2ex]\tikztotarget.west)
+                           -- (\tikztotarget)}] \\
+   D \arrow[r]
+    & E \arrow[r]
+      & F
+\end{tikzcd}
+\end{codeexample}
+
+\subsection{Drawing diagrams directly with Ti\emph{k}Z}
+\label{sec:draw-diagr-directly}
+
+If you find that this package is not flexible enough for some
+particular application, you can use the methods described in
+\cite{lenders}, \cite{milne} and draw diagrams directly with
+\tikzname.  In this case, you can still use the styles provided here
+to obtain pictures with a uniform appearance throughout your document.
+The pictures below show how this can be done (the second one is
+adapted from \cite{milne}).
+
+\begin{codeexample}[]
+\begin{tikzpicture}[commutative diagrams/every diagram]
+  \matrix[matrix of math nodes, name=m, commutative diagrams/every cell] {
+    X & \bar X \\
+      & Y      \\};
+  \path[commutative diagrams/.cd, every arrow, every label]
+    (m-1-1) edge[commutative diagrams/hook] (m-1-2)
+            edge[commutative diagrams/dashed] (m-2-2)
+    (m-1-2) edge (m-2-2);
+\end{tikzpicture}
+\end{codeexample}
+
+
+\begin{codeexample}[]
+\begin{tikzpicture}[commutative diagrams/every diagram]
+  \node (P0) at (90:2.3cm) {$X\otimes (Y\otimes (Z\otimes T))$};
+  \node (P1) at (90+72:2cm) {$X\otimes ((Y\otimes Z)\otimes T))$} ;
+  \node (P2) at (90+2*72:2cm) {\makebox[5ex][r]{$(X\otimes (Y\otimes Z))\otimes T$}};
+  \node (P3) at (90+3*72:2cm) {\makebox[5ex][l]{$((X\otimes Y)\otimes Z)\otimes T$}};
+  \node (P4) at (90+4*72:2cm) {$(X\otimes Y)\otimes (Z\otimes T)$};
+
+  \path[commutative diagrams/.cd, every arrow, every label]
+    (P0) edge node[swap] {$1\otimes\phi$} (P1)
+    (P1) edge node[swap] {$\phi$} (P2)
+    (P2) edge node {$\phi\otimes 1$} (P3)
+    (P4) edge node {$\phi$} (P3)
+    (P0) edge node {$\phi$} (P4);
+\end{tikzpicture}
+\end{codeexample}
+
+\subsection{Issues with active characters}
+\label{sec:issues-with-active-ampersand}
+
+By default, \tikzname{} makes the character |&| active inside
+matrices, and this causes the error message
+\begin{verse}
+  |! Package pgfbasematrix Error: Single ampersand used with wrong catcode.|
+\end{verse}
+when |{tikzcd}| is used inside the argument to a macro such as a Beamer
+frame or a footnote.  One solution to this problem is to call |{tikzcd}|
+with the option |ampersand replacement=\&|, and replace all
+occurrences of |&| with |\&| in the diagram.  This procedure is also
+needed if you want to use matrices in a diagram cell or label.
+
+\begin{codeexample}[/tikz/commutative diagrams/diagrams={column sep=large}]
+\begin{tikzcd}[ampersand replacement=\&]
+  A \oplus B \ar[r, "{\begin{pmatrix}  e & f \\ g & h \end{pmatrix}}"]
+    \& C \oplus D
+\end{tikzcd}
+\end{codeexample}
+
+An alternative fix to this issue that does not require replacing |&|
+with a different column separator consists in adding the following
+line to your document after all packages have been loaded:
+\begin{verse}
+  |\def\temp{&} \catcode`&=\active \let&=\temp|
+\end{verse}
+However, this may interfere in unexpected ways with other
+packages.  Use this trick at your own risk.
+
+A different but related issue is that some packages, notably
+\texttt{babel}, modify the catcodes of certain characters in a way
+that may upset \tikzname's parser.  To fix this, add
+\begin{verse}
+  |\usetikzlibrary{babel}|
+\end{verse}
+to your document preamble.
+
+\section{Additional goodies}
+\label{sec:general-infra}
+
+This package provides some general \pgfname\ infrastructure to achieve
+its goals.  These additional goodies are documented in this section.
+
+\subsection{The \texttt{asymmetrical rectangle} shape}
+\label{sec:asymm-rect-shape}
+
+The following shape is used inside |{tikzcd}| to ensure that arrows
+between nodes in the same row are perfectly horizontal, even if the
+nodes contain text with different heights and depths.
+
+\begin{shape}{asymmetrical rectangle}
+  This shape is similar to the |rectangle| shape, but its |center| is
+  located at a fixed distance of the |base|, as determined by the
+  |center yshift| key, rather than lying at the shape's geometric
+  center.  The numerical anchors, as well as |east| and |west|, are
+  modified accordingly, and there are anchors called |real center|,
+  |real east|, and |real west| matching |rectangle|'s original
+  definitions.  All other anchors provided by |rectangle| are
+  available and remain unmodified.
+\end{shape}
+
+\begin{key}{/tikz/commutative diagrams/center yshift=\meta{dimension}
+    (initially axis\_height)}
+  Determines the distance between |asymmetrical rectangle|'s |base|
+  and |center| anchors.
+\end{key}
+
+The picture below shows some of the available anchors.
+
+\begin{center}\Huge
+  \begin{tikzpicture}
+    \node[name=s,shape=asymmetrical rectangle,shape example]
+    {Asymmetrical rectangle\vrule width 1pt height 2cm}; \foreach
+    \anchor/\placement in {north west/above left, north/above, north
+      east/above right, west/left, center/right, east/right, real
+      west/left, real center/right, real east/right, base west/left,
+      base/right, base east/right, south west/below left, south/below,
+      south east/below right, text/left, 10/right, 130/above,
+      230/below, -10/below} \draw[shift=(s.\anchor)] plot[mark=x]
+    coordinates{(0,0)} node[\placement] {\scriptsize\texttt{\anchor}};
+  \end{tikzpicture}
+\end{center}
+
+% This shape is used for |{tikzcd}|'s matrix cells to ensure arrows
+% between nodes in the same row are drawn horizontally.  When
+% \tikzname{} draws a path between two nodes, it chooses endpoints lying
+% on their borders in such a way that the path points towards the
+% \texttt{center} of the nodes.  With the \texttt{rectangle} shape, the
+% anchor \texttt{center} lies halfway between two nonadjacent vertices
+% and therefore its position depends on the height and depth of the
+% text, potentially causing slanted lines to be draw.  The picture
+% above, for instance, has a humongous ascender (namely, the rule after
+% the word ``rectangle''), so its \texttt{real center} lies well above
+% its \texttt{center}.
+
+\subsection{Reading font parameters}
+\label{sec:read-font-param}
+
+The following are |pgfmath| functions used to access relevant math
+font parameters.  They take no arguments, but the result depends of
+the currently selected font size.
+
+\begin{math-function}{axis\_height}
+Returns the axis height parameter (a.k.a.\ $\sigma_{22}$) of the document's math font.
+\end{math-function}
+
+\begin{math-function}{rule\_thickness}
+Returns the fraction rule thickness (a.k.a.\ $\xi_8$) of the document's math font.
+\end{math-function}
+
+\subsection{Computer Modern arrow tips}
+\label{sec:comp-modern-arrow}
+
+The following arrow tips mimic the Computer Modern designs.  It is
+useful to know that at size 10\,pt, the Computer Modern arrow stems
+are 0.4\,pt thick; for other font sizes, scale this parameter
+accordingly, or set \texttt{line width=rule\_thickness}.
+
+Notice that by using the mechanism explained in
+\S\ref{sec:changing-arrow-tips}, it is not necessary, and in fact not
+advisable, to directly refer to the arrow tips listed in this section
+inside a |{tikzcd}|.
+
+\begin{multicols}{2}\raggedcolumns
+  \begin{tabular}{ll}
+    \displayarrow{cm to}\\
+    \displayarrow[/tikz/commutative diagrams/double line]{cm implies}\\
+    \displayarrow[line width=1.5*rule_thickness]{cm bold to}\\
+    \displayarrow{cm double to}\\
+    \displayarrow{cm to reversed}\\
+  \end{tabular}
+
+  \begin{tabular}{ll}
+    \displayarrow{cm bar}\\
+    \displayarrow{cm left to}\\
+    \displayarrow{cm right to}\\
+    \displayarrow{cm left hook}\\
+    \displayarrow{cm right hook}\\
+  \end{tabular}
+\end{multicols}
+
+% Incidentally, \tikzname's original \texttt{to} arrow tip seems to be
+% based on the pre-1992 version of Computer Modern, which, in spite of
+% its author's wish \cite{knuth}, can still be found in many systems.
+% \TeX{}Live, for instance, distributed the old version up until 2007 or
+% 2008.  Therefore, an up-to-date \TeX{} distribution may be necessary
+% to get matching arrows in formulas and diagrams.
+
+\subsection{Glyph arrow tips}
+\label{sec:font-arrow-tips}
+
+As an attempt to provide a general solution to the problem of having
+matching arrow tips in text and pictures, this feature produces arrow
+tips that consist of (pieces of) font glyphs carefully placed at the
+endpoints of the path.  To activate it in |{tikzcd}| diagrams, refer
+to the |arrow style| key.
+
+\begin{arrowtipsimple}{Glyph}
+  An arrow tip made from a piece of text.  It accepts the following
+parameters.
+
+\begin{key}{/pgf/arrow keys/glyph math command=\meta{name}}
+  The name of a command (to be used inside |$\csname| \dots
+  |\endcsname$|) producing the desired glyph.
+\end{key}
+
+\begin{key}{/pgf/arrow keys/glyph length=\meta{dimension} (initially 1ex)}
+  The length of the portion of the glyph not clipped away.  Also used
+  to set the `tip end' parameter.
+\end{key}
+
+\begin{key}{/pgf/arrow keys/glyph axis=\meta{dimension} (initially axis\_height)}
+  A vertical displacement applied to the glyph in order to make the
+  glyph's central axis (typically an arrow stem) aligned with the
+  path.
+\end{key}
+
+\begin{key}{/pgf/arrow keys/glyph shorten=\meta{dimension} (initially -0.1ex)}
+  An additional amount by which the end of the path is shortened.
+  This is used to compensate for the gap that usually exists between
+  the tip end and the glyph's bounding box.
+\end{key}
+\end{arrowtipsimple}
+
+Below are some usage examples.  Notice that glyph arrow tips do not
+scale with \pgfname{} line width but their size depends on the current
+font size, so you will probably want to set \texttt{line
+  width=rule\_thickness} when using them.  Also, contrarily to the
+arrow parameters defined by the \texttt{arrows.meta} library, the
+parameters described above are evaluated only at the time the arrow
+tip is drawn, so they can (and should) be given in the units em or ex.
+
+\begin{codeexample}[]
+\tikzset{
+  math to/.tip={Glyph[glyph math command=rightarrow]},
+  loop/.tip={Glyph[glyph math command=looparrowleft, swap]},
+  weird/.tip={Glyph[glyph math command=Rrightarrow, glyph length=1.5ex]},
+  pi/.tip={Glyph[glyph math command=pi, glyph length=1.5ex, glyph axis=0pt]},
+}
+
+\begin{tikzpicture}[line width=rule_thickness]
+  \draw[loop-math to, bend left] (0,2) to (1,2);
+  \draw[math to-weird] (0,1) to (1,1);
+  \draw[pi-pi] (0,0) to (1,0);
+\end{tikzpicture}
+\end{codeexample}
+
+It is important to be aware of some drawbacks of this feature.  First,
+the transition between a line and the arrow tip may become visible
+with some printers (especially in low resolutions or draft mode) and
+document viewers, as you may be able to see in the samples above.
+Second, these rather long tips may
+(\tikz[baseline=-axis_height]\draw[dash pattern=on 0.8ex off
+0.4ex,-{Glyph[glyph math command=rightarrow]}] (0,0) -- (3.4ex,0);) or may
+not (\tikz[baseline=-axis_height]\draw[dash pattern=on 0.8ex off
+0.4ex,-{Glyph[glyph math command=rightarrow]}] (0,0) -- (4ex,0);) fit
+nicely with dashed or curved lines.  Finally, the method used to place
+the arrow tip at the end of a stroked path and clip away the arrow
+stem makes certain assumptions about the font design and could fail in
+cases where unusual design choices are made.
+
+\begin{thebibliography}{9}
+% \bibitem{knuth}
+%   Donald Knuth,
+%   \emph{Important message to all users of \TeX}.
+%   Available at \url{http://www-cs-staff.stanford.edu/~uno/cm.html}
+\bibitem{lenders}
+  Felix Lenders,
+  \emph{Commutative diagrams using \tikzname}.
+  Available at \url{http://www.felixl.de/commu.pdf}.
+\bibitem{milne}
+  James Milne,
+  \emph{Guide to commutative diagrams}.
+  Available at \url{http://www.jmilne.org/not/CDGuide.html}.
+\bibitem{pgfman}
+  Till Tantau,
+  \emph{The \tikzname{} and \pgfname{} packages:  Manual for version 3.0.0}.
+  Available at \url{http://mirrors.ctan.org/graphics/pgf/base/doc/pgfmanual.pdf}.
+\end{thebibliography}
+
+\printindex
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: tex
+%%% mode: auto-fill
+%%% End:
