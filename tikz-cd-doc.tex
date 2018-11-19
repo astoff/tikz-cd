@@ -1046,6 +1046,20 @@ the distance between a label and the corresponding arrow.
   This key appends \meta{options} to |every label|.
 \end{key}
 
+\begin{stylekey}{/tikz/commutative diagrams/marking}
+  This style causes the label to be placed over the arrow.  It is
+  useful to decorate arrows using ordinary math symbols.
+
+\begin{codeexample}[]
+\begin{tikzcd}
+  A \arrow[r, "/" marking]
+    \arrow[rd, "\circ" marking]
+    & B \\
+    & C
+\end{tikzcd}
+\end{codeexample}
+\end{stylekey}
+
 \begin{stylekey}{/tikz/commutative diagrams/description}
   This style causes the label to be placed over the arrow, with the
   background filled.  The clearance around the label is determined by
