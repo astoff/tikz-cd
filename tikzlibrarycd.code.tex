@@ -1,4 +1,4 @@
-% tikzlibrarycd.code.tex [2014/10/30 v0.9e Commutative diagrams with tikz]
+% tikzlibrarycd.code.tex [2018/11/19 v0.9f Commutative diagrams with TikZ]
 %
 % Copyright 2011, 2012, 2014, 2018 by Augusto Stoffel
 %
@@ -393,13 +393,13 @@
   cache=false,
   bending mode=none,
   parameters={\tikzcd@glyph@len,\tikzcd@glyph@shorten},
-  setup code={
+  setup code={%
     \pgfarrowssettipend{\tikzcd@glyph@len\advance\pgf@x by\tikzcd@glyph@shorten}},
   defaults={
     glyph axis=axis_height,
     glyph length=+0.9ex,
     glyph shorten=+-0.1ex},
-  drawing code={
+  drawing code={%
     \pgfpathrectangle{\pgfpoint{+0pt}{+-1ex}}{\pgfpoint{+\tikzcd@glyph@len}{+2ex}}%
     \pgfusepathqclip%
     \pgftransformxshift{+\tikzcd@glyph@len}%
