@@ -23,6 +23,7 @@
 \def\pgfautoxrefs{1}
 
 \documentclass[a4paper]{ltxdoc}
+\usepackage[hyphens]{url}
 
 \def\xcolorversion{2.00}
 
@@ -215,7 +216,7 @@ To invoke this package in \LaTeX, type
 \begin{verse}
     \index{tikz-cd@\protect\texttt{tikz-cd} package}%
     \index{Packages and files!tikz-cd@\protect\texttt{tikz-cd}}%
-    |\usepackage{tikz-cd}|
+    |\usepackage{tikz-cd}|%
 \end{verse}
 or load \tikzname{} and then type
 \begin{verse}%
@@ -636,10 +637,10 @@ it.
   \begin{verse}
     |/tikz/commutative diagrams/row sep/|\meta{size}
   \end{verse}
-stores a
-  \meta{value}, then it is read and |/tikz/row sep|=\meta{value} is
-  set.  If the key above is not initialized, then \meta{size} is
-  presumably a dimension, and |/tikz/row sep|=\meta{size} is set.
+  stores a \meta{value}, then it is read and
+  |/tikz/row sep|=\meta{value} is set.  If the key above is not
+  initialized, then \meta{size} is presumed to be a dimension, and
+  |/tikz/row sep|=\meta{size} is set.
 
   The initially available sizes, and their values, are
   the following:
@@ -706,13 +707,10 @@ Section \ref*{pgfman-section-matrices}.3.2 of the \pgfname{} manual
   cells, which is appropriate for large, displayed diagrams.  The
   present style removes some of this extra white space, and is
   intended for smaller diagrams that should blend with the surrounding
-  text, or very wide material that wouldn't fit on the page otherwise.
+  text, or very wide material that wouldn't fit the page otherwise.
 \end{stylekey}
 
-Keep in mind that while there are some legitimate uses for |{tikzcd}|
-diagrams on inline formulas, standard \LaTeX\ constructs such as
-|\overset| and |\xrigthtarrow| are often sufficient and should be
-preferred.  The picture below shows the (somewhat subtle) difference
+The picture below shows the (somewhat subtle) difference
 between the cramped and the non-cramped styles.
 
 \begin{codeexample}[pre=\minipage{6cm},post=\endminipage]
@@ -720,6 +718,11 @@ This \begin{tikzcd} A \arrow[r] & B \end{tikzcd} is a regular diagram.\\
 This \begin{tikzcd}[cramped, sep=small] A \arrow[r] & B \end{tikzcd} is a cramped diagram.\\
 This $A \to B$ is just a formula.
 \end{codeexample}
+
+Keep in mind that while there are some legitimate uses for |{tikzcd}|
+diagrams on inline formulas, standard \LaTeX\ constructs such as
+|\overset| and |\xrigthtarrow| are often sufficient and should be
+preferred.
 
 \begin{key}{/tikz/commutative diagrams/math mode=\meta{boolean}
      (default true)}
@@ -821,7 +824,8 @@ Recall that it is possible to give a specific entry of a \tikzname{}
 matrix a name by using the \verb!|[!\meta{options}\verb!]|! syntax, as
 done for entry $C$ in the example below.  You must be careful not to
 create nodes whose name contains only the characters |l|, |r|, |u|,
-|d| if you want to refer to them using |from| or |to|.
+|d| if you want to refer to them using |from| or |to|.  The following
+illustrates several different uses of these keys.
 
 {\catcode`\|=12
 \begin{codeexample}[]
