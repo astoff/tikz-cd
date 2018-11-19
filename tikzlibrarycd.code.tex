@@ -26,7 +26,10 @@
   labels/.code={\tikzcdset{every label/.append style={#1}}},
   cells/.code={\tikzcdset{every cell/.append style={#1}}},
   diagrams/.code={\tikzcdset{every diagram/.append style={#1}}},
-  execute before arrows/.code={\expandafter\def\expandafter\tikzcd@before@paths@hook\expandafter{\tikzcd@before@paths@hook#1}},
+  execute before arrows/.code={%
+    \expandafter\def%
+    \expandafter\tikzcd@before@paths@hook%
+    \expandafter{\tikzcd@before@paths@hook#1}},
   to/.code={\tikzcd@setarrowend\tikzcd@ar@target{#1}},
   from/.code={\tikzcd@setarrowend\tikzcd@ar@start{#1}},
   description/.style={
@@ -51,7 +54,7 @@
   math mode/.is if=tikzcd@mathmode,
   arrow style/.is choice}
 
-\def\tikzcd@sep#1#2{
+\def\tikzcd@sep#1#2{%
   \pgfkeysifdefined{/tikz/commutative diagrams/#1 sep/#2}%
     {\pgfkeysgetvalue{/tikz/commutative diagrams/#1 sep/#2}\tikzcd@temp%
      \pgfkeysalso{/tikz/#1 sep/.expand once=\tikzcd@temp}}%
