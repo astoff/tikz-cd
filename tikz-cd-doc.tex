@@ -971,6 +971,21 @@ possible values for \meta{anchor}.
 \end{tikzcd}
 \end{codeexample}
 
+\begin{key}{/tikz/commutative diagrams/shorten=\meta{dimension}}
+  This key shortens each end of the arrow by \meta{dimension}.
+
+\begin{codeexample}[]
+\begin{tikzcd}
+  A \arrow[r, shift left]
+    \ar[r, shorten=2mm, shift right]
+    & B
+\end{tikzcd}
+\end{codeexample}
+\end{key}
+
+Note that the ends of an arrow can be shortened individually using
+\tikzname's built-in keys |shorten <| and |shorten >|.
+
 \subsection{Three-dimensional diagrams}
 \label{sec:crossing-over}
 

@@ -32,6 +32,9 @@
     \expandafter{\tikzcd@before@paths@hook#1}},
   to/.code={\tikzcd@setarrowend\tikzcd@ar@target{#1}},
   from/.code={\tikzcd@setarrowend\tikzcd@ar@start{#1}},
+  shorten/.style={
+    /tikz/shorten <=#1,
+    /tikz/shorten >=#1},
   description/.style={
     /tikz/anchor=center,
     /tikz/fill=\pgfkeysvalueof{/tikz/commutative diagrams/background color}},
