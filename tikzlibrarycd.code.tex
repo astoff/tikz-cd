@@ -11,7 +11,7 @@
 % but WITHOUT ANY WARRANTY; without even the implied warranty of
 % MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 % GNU General Public License for more details.
-% 
+%
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -22,6 +22,7 @@
 \def\tikzcdset{\pgfqkeys{/tikz/commutative diagrams}}
 
 \tikzcdset{
+  name/.style={/tikz/every matrix/.append style={name=#1}},
   arrows/.code={\tikzcdset{every arrow/.append style={#1}}},
   labels/.code={\tikzcdset{every label/.append style={#1}}},
   cells/.code={\tikzcdset{every cell/.append style={#1}}},
@@ -85,7 +86,7 @@
     }{%
       \def#1{\tikzcdmatrixname-#2}%
     }}
-    
+
 % The unknown key handler and direction argument parser
 \tikzcdset{
   .unknown/.code={%
@@ -124,7 +125,12 @@
 \def\tikzcd@@{\pgfutil@ifnextchar[{\tikzcd@handle@shortcuts@next\tikzcd@}{\tikzcd@[]}}
 
 \def\tikzcd@[#1]{%
-  \tikzpicture[/tikz/commutative diagrams/.cd,every diagram,#1]%
+  \tikzifinpicture{%
+    \let\tikzcdpicture\scope\let\endtikzcdpicture\endscope% <-- inside tikzpicture : start a scope
+  }{%
+    \let\tikzcdpicture\tikzpicture\let\endtikzcdpicture\endtikzpicture% <-- outside tikzpicture : start a tikzpicture
+  }%
+  \tikzcdpicture[/tikz/commutative diagrams/.cd,every diagram,#1]%
   \ifx\arrow\tikzcd@arrow%
     \pgfutil@packageerror{tikz-cd}{Diagrams cannot be nested}{}%
   \fi%
@@ -162,7 +168,7 @@
     \tikzcd@before@paths@hook%
     \tikzcd@savedpaths%
   \endgroup%
-  \endtikzpicture%
+  \endtikzcdpicture%
   \ifnum0=`{}\fi}
 
 % The arrow commands
