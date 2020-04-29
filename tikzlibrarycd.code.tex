@@ -165,6 +165,41 @@
   \endtikzpicture%
   \ifnum0=`{}\fi}
 
+% Environment 'equationcd' combines equation-environment with tikzcd
+\ExplSyntaxOn
+\keys_define:nn { myclass / equationcd }
+	{
+		label .tl_set:N = \l_label_tl,
+		tikz .tl_set:N = \l_tikz_tl
+	}
+
+\NewDocumentEnvironment{equationcd}{o}
+	{
+		\IfNoValueTF{#1}{}{
+			\keys_set:nn { myclass / equationcd } { #1 }
+		}
+		\begin{equation}%
+			% Set label
+			\tl_if_empty:NF \l_label_tl { 
+				\label { \l_label_tl }
+			}
+
+			% Start tikzcd environment with custom style appended
+			\tl_if_empty:NTF \l_tikz_tl
+			{ 
+				\begin{tikzcd}
+			}
+			{
+				\cs_set:Npn \beginTikzcd:n ##1 { \begin{tikzcd}[ ##1 ] }
+				\cs_generate_variant:Nn \beginTikzcd:n { V }
+				\beginTikzcd:V \l_tikz_tl
+			}
+	}
+	{%
+		\end{tikzcd}\end{equation}\ignorespacesafterend%
+	}%
+\ExplSyntaxOff
+
 % The arrow commands
 \def\tikzcd@arrow{%
   \relax% this was added to avoid errors when a cell starts with \arrow, but it seems unnecessary now
