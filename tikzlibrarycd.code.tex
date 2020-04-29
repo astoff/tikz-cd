@@ -130,6 +130,13 @@
   \fi%
   \let\arrow\tikzcd@arrow%
   \let\ar\tikzcd@arrow%
+  
+  % Overwrite to / mapsto
+  \global\let\oldto\to%
+	\global\let\oldmapsto\mapsto%
+  \def\to{\arrow}%
+  \def\mapsto{\arrow[mapsto]}%
+  
   \def\rar{\tikzcd@xar{r}}%
   \def\lar{\tikzcd@xar{l}}%
   \def\dar{\tikzcd@xar{d}}%
@@ -162,6 +169,11 @@
     \tikzcd@before@paths@hook%
     \tikzcd@savedpaths%
   \endgroup%
+  
+  % Reset to and mapsto
+  \gdef\to{\oldto}%
+	\gdef\mapsto{\oldmapsto}%
+    
   \endtikzpicture%
   \ifnum0=`{}\fi}
 
