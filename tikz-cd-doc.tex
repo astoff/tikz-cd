@@ -1,17 +1,20 @@
-% Copyright 2011, 2012, 2014, 2018 by Augusto Stoffel
+%% tikz-cd-doc.tex
+%% Copyright 2011, 2012, 2014, 2018, 2021 Augusto Stoffel
 %
-% This program is free software: you can redistribute it and/or modify
-% it under the terms of the GNU General Public License as published by
-% the Free Software Foundation, either version 3 of the License, or
-% (at your option) any later version.
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
 %
-% This program is distributed in the hope that it will be useful,
-% but WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-% GNU General Public License for more details.
+% This work has the LPPL maintenance status `maintained'.
 %
-% You should have received a copy of the GNU General Public License
-% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+% The Current Maintainer of this work is Augusto Stoffel.
+%
+% This work consists of the files tikzlibrarycd.code.tex, tikz-cd.sty
+% and tikz-cd-doc.tex.
 %
 % ------------------------------------------------------------------------
 %
@@ -179,7 +182,7 @@ directory}{}}
 {\Large\bfseries Commutative diagrams with \tikzname}
 
 \vspace{1em}
-{Version 0.9f \qquad November 19, 2018}
+{Version 1.0 \qquad May 4, 2021}
 \end{center}
 
 \vspace{1.5em}
@@ -191,28 +194,16 @@ reasonable default settings.  Familiarity with Ti\emph{k}Z is helpful
 but not necessary, since the examples contained here cover the most
 common situations.
 
-This software is distributed under the terms of the GNU General Public
-License, version 3 or later.
+This work may be distributed and/or modified under the conditions of
+the \LaTeX\ Project Public License, either version 1.3 of this license
+or (at your option) any later version.
 
 \tableofcontents
-
-\setcounter{section}{-1}
-\section{Disclaimer}
-\label{sec:disclaimer}
-
-Before version 1.0 of this package is released, minor modifications
-and bug fixes may be performed.  All documents making an orthodox use
-of this package will continue to compile and generate essentially the
-same output.  However, if you have strict stability requirements (for
-instance, if you want to assure no page break changes will happen in
-your documents), keep a copy of the current version of the file
-\texttt{tikzlibrarycd.code.tex} in your document's directory.
 
 \section{Getting started}
 \label{sec:basic-usage}
 
-To invoke this package in \LaTeX, type
-
+To load this package in \LaTeX, type
 \begin{verse}
     \index{tikz-cd@\protect\texttt{tikz-cd} package}%
     \index{Packages and files!tikz-cd@\protect\texttt{tikz-cd}}%
@@ -224,6 +215,8 @@ or load \tikzname{} and then type
    \index{Libraries!cd@\protect\texttt{cd}}%
    |\usetikzlibrary{cd}|%
 \end{verse}
+This package is compatible with other \TeX\ formats as well.
+See~\S\ref{sec:usage-plain-tex} and \S\ref{sec:usage-context}.
 
 \subsection{Creating a diagram}
 \label{sec:creating-diagrams}
@@ -515,7 +508,7 @@ and the other ones work analogously.
 \subsection{Usage in plain \TeX{}}
 \label{sec:usage-plain-tex}
 
-To use this software in plain \TeX{}, load \tikzname{} and the
+To use this package in plain \TeX{}, load \tikzname{} and the
 \texttt{cd} library by saying
 \begin{verse}
   |\input tikz.tex|\\
@@ -530,9 +523,9 @@ All other functions of this library work as described in this manual
 without change.
 
 \subsection{Usage in Con\TeX t}
-\label{sec:usage-plain-context}
+\label{sec:usage-context}
 
-To use this software in Con\TeX t, load \tikzname{} and then the
+To use this package in Con\TeX t, load \tikzname{} and then the
 \texttt{cd} library by saying
 \begin{verse}
   |\usemodule[tikz]|\\
@@ -639,7 +632,7 @@ it.
 \def\printsep#1#2{\edef\temp{\pgfkeysvalueof{/tikz/commutative diagrams/#1 sep/#2}}\expandafter\printsepaux\temp}
 
 \begin{key}{/tikz/commutative diagrams/row sep=\meta{size}}
-  This key acts as a ``frontend'' to \tikzname's |/tikz/row sep| key.  If
+  This key acts as a frontend to \tikzname's |/tikz/row sep| key.  If
   the key
   \begin{verse}
     |/tikz/commutative diagrams/row sep/|\meta{size}
@@ -1174,11 +1167,10 @@ be inserted.
 
 If you find that this package is not flexible enough for some
 particular application, you can use the methods described in
-\cite{lenders}, \cite{milne} and draw diagrams directly with
-\tikzname.  In this case, you can still use the styles provided here
-to obtain pictures with a uniform appearance throughout your document.
-The pictures below show how this can be done (the second one is
-adapted from \cite{milne}).
+\cite{milne} and draw diagrams directly with \tikzname.  In this case,
+you can still use the styles provided here to obtain pictures with a
+uniform appearance throughout your document.  The pictures below show
+how this can be done (the second one is adapted from \cite{milne}).
 
 \begin{codeexample}[]
 \begin{tikzpicture}[commutative diagrams/every diagram]
@@ -1235,7 +1227,7 @@ An alternative fix to this issue that does not require replacing |&|
 with a different column separator consists in adding the following
 line to your document after all packages have been loaded:
 \begin{verse}
-  |\def\temp{&} \catcode`&=\active \let&=\temp|
+  |\def\temp{&} \catcode`&=||\active \let&=||\temp|
 \end{verse}
 However, this may interfere in unexpected ways with other
 packages.  Use this trick at your own risk.
@@ -1433,17 +1425,13 @@ stem makes certain assumptions about the font design and could fail in
 cases where unusual design choices are made.
 
 \begin{thebibliography}{9}
-\bibitem{lenders}
-  Felix Lenders,
-  \emph{Commutative diagrams using \tikzname}.
-  Available at \url{http://www.felixl.de/commu.pdf}.
 \bibitem{milne}
   James Milne,
   \emph{Guide to commutative diagrams}.
   Available at \url{http://www.jmilne.org/not/CDGuide.html}.
 \bibitem{pgfman}
   Till Tantau,
-  \emph{The \tikzname{} and \pgfname{} packages:  Manual for version 3.0.1a}.
+  \emph{The \tikzname{} and \pgfname{} packages:  Manual for version 3.1.9}.
   Available at \url{http://mirrors.ctan.org/graphics/pgf/base/doc/pgfmanual.pdf}.
 \end{thebibliography}
 
@@ -1454,4 +1442,5 @@ cases where unusual design choices are made.
 %%% Local Variables:
 %%% mode: tex
 %%% mode: auto-fill
+%%% TeX-engine: luatex
 %%% End:
